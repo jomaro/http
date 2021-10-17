@@ -1,4 +1,11 @@
-defmodule HTTP.Adapters.TeslaAdapter do
+defmodule HTTP.Adapters.TeslaFinchAdapter do
+  @moduledoc """
+  An adapter based on Finch which adds a connection poll over Mint
+
+  If you need to make several requests to the same host, in a single
+  execution of the application, you probably want to use this adapter
+  """
+
   alias HTTP.Request
   alias HTTP.Response
   alias HTTP.Security
@@ -10,6 +17,8 @@ defmodule HTTP.Adapters.TeslaAdapter do
       versions: [:"tlsv1.2", :"tlsv1.3"],
     ]
   ]
+
+  @finch_adapter {Tesla.Adapter.Finch, name: FinchStatefulHTTP}
 
   def child_spec() do
     [
@@ -25,8 +34,8 @@ defmodule HTTP.Adapters.TeslaAdapter do
     ]
   end
 
-  @spec execute(Request.t()) :: {:error, any} | {:ok, Response.t()}
-  def execute(request = %Request{}) do
+  @spec execute(Request.t(), keyword()) :: {:error, any} | {:ok, Response.t()}
+  def execute(request = %Request{}, _options) do
     tesla_options = [
       method: request.method,
       url: request.url,
@@ -54,8 +63,8 @@ defmodule HTTP.Adapters.TeslaAdapter do
     end
   end
 
-  def execute!(request = %Request{}) do
-    {:ok, response} = execute(request)
+  def execute!(request = %Request{}, options) do
+    {:ok, response} = execute(request, options)
 
     response
   end
@@ -63,6 +72,6 @@ defmodule HTTP.Adapters.TeslaAdapter do
   defp client(_request = %Request{}) do
     middleware = []
 
-    Tesla.client(middleware)
+    Tesla.client(middleware, @finch_adapter)
   end
 end

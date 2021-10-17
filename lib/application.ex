@@ -10,7 +10,7 @@ defmodule Http do
 
   defp children() do
     [
-      HTTP.Adapters.TeslaAdapter.child_spec(),
+      HTTP.Adapters.TeslaFinchAdapter.child_spec(),
     ]
     |> List.flatten()
   end

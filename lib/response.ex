@@ -1,5 +1,4 @@
 defmodule HTTP.Response do
-  alias HTTP.Request
 
   defstruct [
     :request,
